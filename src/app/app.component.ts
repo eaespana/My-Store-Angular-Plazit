@@ -9,6 +9,7 @@ import { Product } from './models/product.model';
 export class AppComponent {
   title = 'my-store';
   imgPadre = 'https://www.w3schools.com/howto/img_avatar.png';
+  showImg = true;
 
   products: Product[] = [
     {
@@ -40,4 +41,9 @@ export class AppComponent {
   onLoaded(img: string){
     console.log('Loaded Padre', img);
   }
+
+  toggleImg() {
+    this.showImg = !this.showImg;
+  }
+
 }
