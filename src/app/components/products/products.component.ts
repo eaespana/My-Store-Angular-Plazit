@@ -3,6 +3,8 @@ import { Product,createProductDTO,UpdateProductDTO } from '../../models/product.
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
 import Swal from 'sweetalert2';
+import { switchMap } from 'rxjs/operators';
+import { zip } from 'rxjs';
 
 @Component({
   selector: 'app-products',
@@ -78,6 +80,27 @@ export class ProductsComponent implements OnInit {
       })
     });
   }
+
+  readAndUpdate(id: string) {
+    this.productsService.getProduct(id)
+    .pipe(
+      switchMap((product) => this.productsService.update(product.id,{title:"change"})),
+      switchMap((product) => this.productsService.update(product.id,{title:"change2"}))
+    ).subscribe(data => {
+        console.log(data);
+    })
+    //
+    this.productsService.featchReadAndUpdat(id,{title:"change3"})
+    .subscribe(response => {
+      const readProduct = response[0];
+      const updateProduct = response[1];
+      console.log(readProduct);
+      console.log(updateProduct);
+    })
+
+  }
+
+
 
   createNewProduct(){
     const product: createProductDTO = {
