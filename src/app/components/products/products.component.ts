@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Product } from '../../models/product.model';
+import { Product,createProductDTO,UpdateProductDTO } from '../../models/product.model';
 import { StoreService } from '../../services/store.service';
 import { ProductsService } from '../../services/products.service';
 
@@ -15,6 +15,20 @@ export class ProductsComponent implements OnInit {
   products: Product[] = [];
   today = new Date();
   date = new Date(2021,1,21);
+  showProductDetail = false;
+  productChosen: Product = {
+    id: '',
+    price: 0,
+    images: [],
+    title: '',
+    category: {
+      id:'',
+      name:''
+    },
+    description: ''
+  }
+  limit = 10;
+  offset = 0;
 
   constructor(
     private storeService: StoreService,
@@ -24,11 +38,12 @@ export class ProductsComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.productsService.getAllProducts()
+    this.loadMore();
+    /*this.productsService.getAllProducts()
         .subscribe(data => {
-          console.log(data);
+          console.log('getAllProducts', data);
           this.products = data;
-        });
+        });*/
 
   }
 
@@ -36,6 +51,78 @@ export class ProductsComponent implements OnInit {
     console.log(product);
     this.storeService.addProduct(product);
     this.total = this.storeService.getTotal();
+  }
+
+  toggleProductDetail(){
+    this.showProductDetail = !this.showProductDetail;
+  }
+
+  onShowDetail(id: string) {
+    this.productsService.getProduct(id)
+    .subscribe(data => {
+      console.log('Product => ', data);
+      this.toggleProductDetail();
+      this.productChosen = data;
+    });
+  }
+
+  createNewProduct(){
+    const product: createProductDTO = {
+      title: 'Nuevo Producto',
+      description: '123 456 789',
+      price: 1500,
+      images: ['image1','image2','image3'],
+      categoryId: 1
+    }
+    this.productsService.create(product)
+    .subscribe(data => {
+      console.log('createNewProduct ',data);
+      this.products.unshift(data);
+    });
+  }
+
+  updateProduct(){
+    const changeProduct = {
+      title: 'Nuevo Producto2'
+    }
+    const id = this.productChosen.id;
+    this.productsService.update(id,changeProduct)
+    .subscribe(data => {
+      this.products.map(function(dato){
+        if(dato.id == id){
+          dato.title = changeProduct.title;
+        }
+        return dato;
+      });
+      console.log('updateProduct ',this.products);
+
+      const productIndex = this.products.findIndex(
+        item => item.id == this.productChosen.id
+      );
+      this.products[productIndex] = data;
+      this.productChosen = data;
+
+    });
+  }
+
+  deleteProduct(){
+    const id = this.productChosen.id;
+    this.productsService.delete(id)
+    .subscribe(() => {
+      const productIndex = this.products.findIndex(
+        item => item.id == this.productChosen.id
+      );
+      this.products.splice(productIndex,1);
+      this.showProductDetail= false;
+    });
+  }
+
+  loadMore(){
+    this.productsService.getProductbyPage(this.limit,this.offset)
+        .subscribe(dataByPage => {
+          this.products = this.products.concat(dataByPage);
+          this.offset += this.limit;
+        });
   }
 
 }

@@ -10,7 +10,13 @@
       ],
       "parserOptions": {
         "project": [
-          "./tsconfig.json"
+          "my-store/tsconfig.json"
+        ],
+        "tsconfigRootDir": [
+          "__dirname"
+        ],
+        "sourceType": [
+          "module"
         ],
         "createDefaultProgram": true
       },
