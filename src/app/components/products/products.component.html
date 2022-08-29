@@ -20,6 +20,7 @@
   {{'Hola se cambiaran vocales por numeros' | vocalToNumber}}
 </p>
 <button (click)="createNewProduct()">Create</button>
+<button (click)="onShowDetail('123456')">Detalle not fount</button>
 <div class="products--grid">
   <app-product
     [myProduct]="product"
@@ -30,6 +31,7 @@
   <button (click)="loadMore()">Load More</button>
 </div>
 <div class="product-detail" [class.active]="showProductDetail">
+  {{statusDetail}}
   <div *ngIf="productChosen" >
     <button (click)="toggleProductDetail()">Close</button>
     <h1>{{productChosen.title}}</h1>

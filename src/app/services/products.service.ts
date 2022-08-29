@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient,HttpParams } from '@angular/common/http';
-import { retry } from 'rxjs/operators'
+import { HttpClient,HttpParams,HttpErrorResponse,HttpStatusCode } from '@angular/common/http';
+import { retry, catchError } from 'rxjs/operators';
+import { throwError } from 'rxjs';
 
 import { Product, createProductDTO, UpdateProductDTO } from '../models/product.model';
 
@@ -31,7 +32,21 @@ export class ProductsService {
   }
 
   getProduct(id: string) {
-    return this.httpClient.get<Product>(`${this.apiUrl}/${id}`);
+    return this.httpClient.get<Product>(`${this.apiUrl}/${id}`)
+    .pipe(
+      catchError((error: HttpErrorResponse) => {
+        if(error.status === HttpStatusCode.Conflict){
+          return throwError('Algo esta fallando en el server');
+        }
+        if(error.status === HttpStatusCode.NotFound){
+          return throwError('Producto no existe');
+        }
+        if(error.status === HttpStatusCode.Unauthorized){
+          return throwError('No estas permitido ingresar');
+        }
+        return throwError('ups algo salio mal');
+      })
+    );
   }
 
   getProductbyPage(limit: number, offset: number){
